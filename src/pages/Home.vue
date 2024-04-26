@@ -20,9 +20,9 @@
         </div>
       </div>
     </div>
-    <div class="field">
+    <div class="field col">
       <label for="content" class="">Content: </label>
-      <Editor v-model="content" htmlValue="page.content" editorStyle="min-height: 12rem" />
+      <Editor v-model="content" editorStyle="min-height: 12rem" />
     </div>
     <Button label="Submit" @click="submit" />
     <Toast />
@@ -31,35 +31,38 @@
 
 <script setup>
 import { ref } from 'vue';
-import Editor from 'primevue/editor'
-import axios from 'axios'
-import InputText from 'primevue/inputtext'
+import InputText from 'primevue/inputtext';
 import Button from 'primevue/button'
 import Toast from 'primevue/toast'
-import { useToast } from 'primevue/usetoast'
+import Editor from 'primevue/editor'
+import { useStore } from 'vuex'
+import {useToast} from 'primevue/usetoast'
 
+const store = useStore()
 const toast = useToast()
+
 const title = ref('');
 const url = ref('');
 const metaKeywords = ref('');
-const content = ref('lllllll');
+const content = ref('');
 
 async function submit() {
-  if (!title.value || !url.value || !metaKeywords.value || !content.value) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Fill all inputs!', life: 3000 });
-  } else {
-    try {
-      const res = await axios.post('http://localhost:3000/pages', {
-        title: title.value,
-        urlSlug: url.value,
-        metaKeywords: metaKeywords.value,
-        content: content.value
-      });
-      console.log(res.data);
-      toast.add({ severity: 'success', summary: 'Success', detail: "Site with " + title.value + " has been created successfully.", life: 3000 });
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  store.dispatch('submit', {
+    title: title.value,
+    url: url.value,
+    metaKeywords: metaKeywords.value,
+    content: content.value
+  })
+  toast.add({ 
+    severity: 'success',
+    summary: 'Added successfully',
+    detail: `
+      Title: ${title.value},
+      url: ${url.value},
+      metaKeywords: ${metaKeywords.value},
+      content: ${content.value}
+    `,
+    life: 3000
+  })
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-column gap-5">
         <div v-for="page in pages" :key="page.id">
-            <Panel :header="page.id + ' | ' + page.title" toggleable :collapsed="page.collapsed">
+            <Panel :header="page.id + ' | ' + page.title">
                 <div class="formgrid grid">
                     <div class="field col">
                         <label>Title: </label>
@@ -9,7 +9,7 @@
                     </div>
                     <div class="field col">
                         <label>URL Slug</label>
-                        <InputText v-model="page.urlSlug" class="w-full" />
+                        <InputText v-model="page.url" class="w-full" />
                     </div>
                     <div class="field col">
                         <label>Meta keywords</label>
@@ -18,13 +18,12 @@
                 </div>
                 <div class="field">
                     <label>Content: </label>
-                    <pre>{{ page }}</pre>
-                    <Editor v-if="page.collapsed" editorStyle="min-height: 12rem;" v-model="page.content" />
+                    <Editor editorStyle="min-height: 12rem;" v-model="page.content" />
                 </div>
                 <div class="mt-5 flex gap-3">
                     <Button label="Edit" @click="editPage(page)" />
                     <Button label="Delete" severity="danger" @click="deletePage(page)" />
-                    <Toast/>
+                    <Toast />
                 </div>
             </Panel>
         </div>
@@ -40,37 +39,30 @@ import InputText from 'primevue/inputtext'
 import Editor from 'primevue/editor'
 import Toast from 'primevue/toast'
 import { useToast } from "primevue/usetoast";
+import { useStore } from 'vuex'
 
 const pages = ref([]);
 const toast = useToast()
-
+const store = useStore()
 
 async function fetchPages() {
     try {
-        const res = await axios.get('http://localhost:3000/pages');
-        pages.value = res.data;
-        pages.value = res.data.map(page => ({
-            ...page,
-            collapsed: true
-        }));
-        toast.add({ severity: 'success', summary: 'Successfully', detail: "Done successfully", life: 3000, })
+        await store.dispatch("fetchPages");
+        pages.value = store.state.pages;
+        toast.add({ severity: 'success', summary: 'Successfully', detail: "Done successfully", life: 3000 });
     } catch (e) {
         console.log(e);
-        toast.add({ severity: 'danger', summary: 'danger', detail: e, life: 3000, })
+        toast.add({ severity: 'danger', summary: 'danger', detail: e, life: 3000 });
     }
 }
 
-async function editPage(page) {
-    try {
-        await axios.put(`http://localhost:3000/create/${page.id}`, page);
-        await fetchPages();
-    } catch (error) {
-        console.error(error);
-    }
+function editPage(page) {
+    store.dispatch('editPage', page);
 }
+
 async function deletePage(page) {
     try {
-        await axios.delete(`http://localhost:3000/create/${page.id}`, page);
+        await axios.delete(`http://localhost:3000/pages/${page.id}`, page);
         await fetchPages();
     } catch (error) {
         console.error(error);
