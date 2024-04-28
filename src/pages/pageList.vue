@@ -48,21 +48,26 @@ const pages = computed(() => store.state.pages)
 async function fetchPages() {
     try {
         await store.dispatch("fetchPages");
-        pages.value = store.state.pages;
-        toast.add({ severity: 'success', summary: 'Successfully', detail: "Done successfully", life: 3000 });
+        toast.add({ severity: 'success', detail: 'Pages has been fetched', life: 3000 });
     } catch (e) {
         console.log(e);
-        toast.add({ severity: 'danger', summary: 'danger', detail: e, life: 3000 });
+        toast.add({ severity: 'danger', detail: 'danger', detail: e, life: 3000 });
     }
 }
 
-function editPage(page) {
-    store.dispatch('editPage', page);
+async function editPage(page) {
+    try {
+        await store.dispatch('editPage', page);
+        toast.add({ severity: 'success', detail: 'Edited', life: 3000 });
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 async function deletePage(page) {
     try {
         await store.dispatch('deletePage', page);
+        toast.add({ severity: 'success', detail: 'Page has been deleted', life: 3000 });
     } catch (error) {
         console.error(error);
     }

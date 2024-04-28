@@ -8,7 +8,7 @@ const store = createStore({
     metaKeywords: "",
     content: "",
     pages: [],
-  },
+  }, 
   mutations: {
     updateInputValues(state, payload) {
       state.title = payload.title;
@@ -53,10 +53,10 @@ const store = createStore({
         console.error(error);
       }
     },
-    async deletePage({ commit }, page) {
+    async deletePage({ dispatch }, page) {
       try {
         await axios.delete(`/pages/${page.id}`, page);
-        commit("updatePage", page);
+        dispatch("fetchPages", page)
       } catch (error) {
         console.error(error);
       }
