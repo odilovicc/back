@@ -36,7 +36,7 @@ import Button from 'primevue/button'
 import Toast from 'primevue/toast'
 import Editor from 'primevue/editor'
 import { useStore } from 'vuex'
-import {useToast} from 'primevue/usetoast'
+import { useToast } from 'primevue/usetoast'
 
 const store = useStore()
 const toast = useToast()
@@ -47,22 +47,43 @@ const metaKeywords = ref('');
 const content = ref('');
 
 async function submit() {
-  store.dispatch('submit', {
-    title: title.value,
-    url: url.value,
-    metaKeywords: metaKeywords.value,
-    content: content.value
-  })
-  toast.add({ 
-    severity: 'success',
-    summary: 'Added successfully',
-    detail: `
-      Title: ${title.value},
-      url: ${url.value},
-      metaKeywords: ${metaKeywords.value},
-      content: ${content.value}
-    `,
-    life: 3000
-  })
+  try {
+    const response = await store.dispatch('submit', {
+      title: title.value,
+      url: url.value,
+      metaKeywords: metaKeywords.value,
+      content: content.value
+    });
+
+    if (response && response.status === 201) {
+      toast.add({
+        severity: 'success',
+        summary: 'Added successfully',
+        detail: `
+          Title: ${title.value},
+          url: ${url.value},
+          metaKeywords: ${metaKeywords.value},
+          content: ${content.value}
+        `,
+        life: 3000
+      });
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Error occurred',
+        detail: `Server returned status code ${response ? response.status : 'unknown'}`, // Добавил проверку на response
+        life: 3000
+      });
+    }
+  } catch (error) {
+    console.error('An error occurred while submitting:', error);
+    toast.add({
+      severity: 'error',
+      summary: 'Error occurred',
+      detail: 'An error occurred while submitting the form',
+      life: 3000
+    });
+  }
 }
+
 </script>

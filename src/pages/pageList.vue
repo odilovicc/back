@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import Button from 'primevue/button'
 import Panel from 'primevue/panel'
@@ -41,9 +41,9 @@ import Toast from 'primevue/toast'
 import { useToast } from "primevue/usetoast";
 import { useStore } from 'vuex'
 
-const pages = ref([]);
 const toast = useToast()
 const store = useStore()
+const pages = computed(() => store.state.pages)
 
 async function fetchPages() {
     try {
@@ -62,8 +62,7 @@ function editPage(page) {
 
 async function deletePage(page) {
     try {
-        await axios.delete(`http://localhost:3000/pages/${page.id}`, page);
-        await fetchPages();
+        await store.dispatch('deletePage', page);
     } catch (error) {
         console.error(error);
     }

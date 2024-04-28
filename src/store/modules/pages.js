@@ -1,7 +1,7 @@
-import { createStore } from "vuex";
+
 import axios from "axios";
 
-const store = createStore({
+export default {
   state: {
     title: "",
     url: "",
@@ -31,11 +31,11 @@ const store = createStore({
       commit("updateInputValues", payload);
       try {
         const res = await axios.post("/pages", payload);
-        commit("setPages", payload);
+        commit("setPages", res.data);
       } catch (e) {
         console.log(e);
-        throw e;
       }
+      console.log(payload);
     },
     async fetchPages({ commit }) {
       try {
@@ -47,7 +47,10 @@ const store = createStore({
     },
     async editPage({ commit }, page) {
       try {
-        const res = await axios.put(`/pages/${page.id}`, page);
+        const res = await axios.put(
+          `/pages/${page.id}`,
+          page
+        );
         commit("updatePage", page);
       } catch (error) {
         console.error(error);
@@ -56,12 +59,10 @@ const store = createStore({
     async deletePage({ commit }, page) {
       try {
         await axios.delete(`/pages/${page.id}`, page);
-        commit("updatePage", page);
+        commit("setPages", res.data);
       } catch (error) {
         console.error(error);
       }
     },
   },
-});
-
-export default store;
+}
